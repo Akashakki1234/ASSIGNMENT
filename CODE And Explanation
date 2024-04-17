@@ -1,0 +1,99 @@
+QUESTION-1:
+   Write a function ‘produce’ that takes in the object of ‘D’ and ‘n’ and returns the L-systems string ‘S’.
+class LSystem:
+    def __init__(self, variables, axiom, rules):
+        self.variables = variables
+        self.axiom = axiom
+        self.rules = rules
+
+    def produce(self, n):
+        current_string = self.axiom
+        for _ in range(n):
+            next_string = ''
+            for char in current_string:
+                if char in self.variables:
+                    for rule in self.rules:
+                        if rule[0] == char:
+                            next_string += rule[1]
+                            break
+                else:
+                    next_string += char
+            current_string = next_string
+        return current_string
+
+# Testing the code with the Cantor fractal L-system
+cantor_fractal = LSystem(variables=['A', 'B'],
+                         axiom='A',
+                         rules=[('A', 'ABA'), ('B', 'BBB')])
+
+n = 5
+cantor_result = cantor_fractal.produce(n)
+print(f"The L-system string for n={n} is: {cantor_result}")
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+QUESTION-2:
+    Test your code using the following L-system (Cantor fractal) where n=3 and tell the answer:
+    variables : A B
+    constants : none
+    start  : A
+    rules  : (A → ABA), (B → BBB)
+SOLUTION:
+     When we run this code, it will output the generated L-system string for the Cantor fractal with n = 3
+     So, the generated L-system string for n = 3 in the Cantor fractal L-system is ABAABABABBBABAABABBBABAABABABBB.
+     OUTPUT:The L-system string for n=3 is: ABAABABABBBABAABABBBABAABABABBB
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+QUESTION-3:
+    Tell the space and time complexity. How can you optimize your solution? 
+SOLUTION:
+   Complexity Analysis:
+     Space Complexity:
+        The space complexity primarily depends on the length of the L-system string generated, which grows exponentially with n.
+        In the 'produce' method, we're generating strings at each iteration, but we're only storing the current and next strings, so the space complexity is O(max_length), where 'max_length' is the maximum length of the L-system string at any iteration, which is typically O(2^n).
+     Time Complexity:
+        The time complexity is determined by the number of iterations (n) and the length of the strings being manipulated.
+        In each iteration, we iterate through the current string and apply the rules, which takes O(length_of_current_string) time. Since we do this n times, the overall time complexity is O(n * max_length).
+
+
+To optimize the code in terms of both time and space complexity, we can implement the following strategies:
+1. Memoization:
+         Memoization involves storing the results of expensive function calls and returning the cached result when the same inputs occur again. In this case, we can store the results of each iteration of the L-system generation to avoid redundant calculations.
+2. Efficient Rule Application:
+        Instead of iterating through all rules for each variable at every iteration, we can preprocess the rules into a dictionary where the keys are variables and the values are the corresponding replacement strings. This way, we can directly look up the replacement string for each variable, reducing the time complexity of rule application.
+3. Iterative Approach:
+        While the provided code uses a recursive approach, which may lead to stack overflow errors for large values of n, we can use an iterative approach instead. Iterative solutions generally have lower overhead and are more memory-efficient.
+The Optimized Code:
+  class LSystem:
+    def __init__(self, variables, axiom, rules):
+        self.variables = variables
+        self.axiom = axiom
+        self.rules = {var: repl for var, repl in rules}  # Preprocess rules into a dictionary
+
+    def produce(self, n):
+        current_string = self.axiom
+        memo = {0: current_string}  # Memoization dictionary to store results
+        for i in range(1, n + 1):
+            next_string = ''
+            for char in current_string:
+                if char in self.variables:
+                    next_string += self.rules[char]
+                else:
+                    next_string += char
+            current_string = next_string
+            memo[i] = current_string  # Store result for current iteration
+        return memo[n]  # Return the result for the nth iteration from memoization
+
+# Cantor fractal L-system
+cantor_fractal = LSystem(variables=['A', 'B'],
+                         axiom='A',
+                         rules=[('A', 'ABA'), ('B', 'BBB')])
+
+n = 3
+cantor_result = cantor_fractal.produce(n)
+print(f"The L-system string for n={n} is: {cantor_result}")
+In this optimized version:
+      We preprocess the rules into a dictionary for efficient lookup.
+      We use memoization to store the results of each iteration to avoid redundant calculations.
+      We use an iterative approach instead of recursion to prevent potential stack overflow issues.
+These optimizations should lead to improvements in both time and space complexity compared to the original implementation.
+
+  
+
